@@ -1,0 +1,9 @@
+# ml-service
+ml-service/.venv/
+ml-service/__pycache__/
+ml-service/**/__pycache__/
+ml-service/uvicorn.log
+
+# OS
+.DS_Store
+Thumbs.db
