@@ -14,7 +14,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Ping backend
-        run: curl -s --max-time 90 -o /dev/null -w "backend: %{http_code}\n" https://quantfolio-backend.onrender.com/api/auth/login -X POST -H "Content-Type: application/json" -d '{}' || true
+        run: |
+          curl -s --max-time 90 -o /dev/null -w "backend: %{http_code}\n" https://quantfolio-backend.onrender.com/api/auth/login -X POST -H "Content-Type: application/json" -d '{}' || true
 
       - name: Ping ml-service
-        run: curl -s --max-time 90 -o /dev/null -w "ml-service: %{http_code}\n" https://quantfolio-ml-service.onrender.com/health || true
+        run: |
+          curl -s --max-time 90 -o /dev/null -w "ml-service: %{http_code}\n" https://quantfolio-ml-service.onrender.com/health || true
