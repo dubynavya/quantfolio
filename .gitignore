@@ -7,3 +7,5 @@ ml-service/uvicorn.log
 # OS
 .DS_Store
 Thumbs.db
+
+.vercel

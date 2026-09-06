@@ -9,18 +9,23 @@ export function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [slowStart, setSlowStart] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setSubmitting(true);
+    setSlowStart(false);
+    const slowStartTimer = setTimeout(() => setSlowStart(true), 6000);
     try {
       await login(email, password);
       navigate("/");
     } catch (err) {
       setError((err as Error).message);
     } finally {
+      clearTimeout(slowStartTimer);
       setSubmitting(false);
+      setSlowStart(false);
     }
   };
 
@@ -34,6 +39,12 @@ export function LoginPage() {
         <label>Password</label>
         <input type="password" required value={password} onChange={(e) => setPassword(e.target.value)} />
         {error && <div className="form-error">{error}</div>}
+        {slowStart && (
+          <div className="muted" style={{ marginTop: 8 }}>
+            The server's waking up from idle (free hosting tier) — this can take up to a minute
+            on the first request. Hang tight.
+          </div>
+        )}
         <button className="btn btn-primary" type="submit" disabled={submitting}>
           {submitting ? "Signing in..." : "Sign in"}
         </button>
