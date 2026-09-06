@@ -7,6 +7,7 @@ interface PortfolioContextValue {
   portfolios: Portfolio[];
   selected: Portfolio | null;
   loading: boolean;
+  slowStart: boolean;
   select: (portfolio: Portfolio) => void;
   refresh: () => Promise<void>;
   create: (name: string) => Promise<void>;
@@ -19,16 +20,21 @@ export function PortfolioProvider({ children }: { children: ReactNode }) {
   const [portfolios, setPortfolios] = useState<Portfolio[]>([]);
   const [selected, setSelected] = useState<Portfolio | null>(null);
   const [loading, setLoading] = useState(false);
+  const [slowStart, setSlowStart] = useState(false);
 
   const refresh = async () => {
     if (!user) return;
     setLoading(true);
+    setSlowStart(false);
+    const slowStartTimer = setTimeout(() => setSlowStart(true), 6000);
     try {
       const list = await api.listPortfolios();
       setPortfolios(list);
       setSelected((current) => current ?? list[0] ?? null);
     } finally {
+      clearTimeout(slowStartTimer);
       setLoading(false);
+      setSlowStart(false);
     }
   };
 
@@ -49,7 +55,7 @@ export function PortfolioProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <PortfolioContext.Provider value={{ portfolios, selected, loading, select: setSelected, refresh, create }}>
+    <PortfolioContext.Provider value={{ portfolios, selected, loading, slowStart, select: setSelected, refresh, create }}>
       {children}
     </PortfolioContext.Provider>
   );

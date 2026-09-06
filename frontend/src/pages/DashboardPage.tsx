@@ -27,7 +27,7 @@ function formatPercent(value: number) {
 }
 
 export function DashboardPage() {
-  const { selected, portfolios, loading } = usePortfolio();
+  const { selected, portfolios, loading, slowStart } = usePortfolio();
   const [metrics, setMetrics] = useState<RiskMetrics | null>(null);
   const [alerts, setAlerts] = useState<RiskAlert[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -65,7 +65,19 @@ export function DashboardPage() {
     }
   };
 
-  if (loading) return <div className="page">Loading portfolios...</div>;
+  if (loading) {
+    return (
+      <div className="page">
+        Loading portfolios...
+        {slowStart && (
+          <div className="muted" style={{ marginTop: 8 }}>
+            The server's waking up from idle (free hosting tier) — this can take up to a minute
+            on the first request. Hang tight.
+          </div>
+        )}
+      </div>
+    );
+  }
 
   if (portfolios.length === 0) {
     return (
