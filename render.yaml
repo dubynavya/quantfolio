@@ -15,8 +15,15 @@ services:
     plan: free
     envVars:
       - key: SPRING_PROFILES_ACTIVE
-        value: render
+        value: prod
       - key: ML_SERVICE_URL
         value: https://quantfolio-ml-service.onrender.com
       - key: JWT_SECRET
         generateValue: true
+      # Secrets — set these manually in the Render dashboard (Environment tab), never here.
+      - key: DATABASE_URL
+        sync: false
+      - key: DATABASE_USERNAME
+        sync: false
+      - key: DATABASE_PASSWORD
+        sync: false
