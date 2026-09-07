@@ -15,7 +15,7 @@ services:
     plan: free
     envVars:
       - key: SPRING_PROFILES_ACTIVE
-        value: local
+        value: render
       - key: ML_SERVICE_URL
         value: https://quantfolio-ml-service.onrender.com
       - key: JWT_SECRET

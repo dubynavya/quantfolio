@@ -61,6 +61,26 @@ logging:
     com.quantfolio: DEBUG
 
 ---
+# Used on Render: same file-based H2 as `local` (simplest option, no separate database to
+# provision), but with the H2 web console switched off — that console has no real auth beyond
+# knowing the JDBC URL/username, which are sitting in this file in a public repo, so it must
+# never be reachable from a public deployment.
+spring:
+  config:
+    activate:
+      on-profile: render
+  datasource:
+    url: jdbc:h2:file:./data/quantfolio;AUTO_SERVER=TRUE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: ""
+  h2:
+    console:
+      enabled: false
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+
+---
 spring:
   config:
     activate:
