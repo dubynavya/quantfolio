@@ -1,5 +1,6 @@
 package com.quantfolio.backend.holding;
 
+import com.quantfolio.backend.marketdata.MarketDataService;
 import com.quantfolio.backend.portfolio.Portfolio;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -14,9 +15,11 @@ import java.util.Optional;
 public class HoldingService {
 
     private final HoldingRepository holdingRepository;
+    private final MarketDataService marketDataService;
 
-    public HoldingService(HoldingRepository holdingRepository) {
+    public HoldingService(HoldingRepository holdingRepository, MarketDataService marketDataService) {
         this.holdingRepository = holdingRepository;
+        this.marketDataService = marketDataService;
     }
 
     public List<Holding> list(Portfolio portfolio) {
@@ -50,6 +53,10 @@ public class HoldingService {
 
     public Holding addOrMerge(Portfolio portfolio, String ticker, BigDecimal quantity, BigDecimal price) {
         String normalizedTicker = ticker.trim().toUpperCase();
+        // Fail fast on an unrecognized ticker here, rather than silently saving it and only
+        // discovering the problem later when something else needs this holding's live price
+        // (which previously broke the whole portfolio's risk calculation, not just this holding).
+        marketDataService.getLatestClose(normalizedTicker);
         return holdingRepository.findByPortfolioAndTicker(portfolio, normalizedTicker)
                 .map(existing -> mergeIntoExisting(existing, quantity, price))
                 .orElseGet(() -> holdingRepository.save(new Holding(portfolio, normalizedTicker, quantity, price)));

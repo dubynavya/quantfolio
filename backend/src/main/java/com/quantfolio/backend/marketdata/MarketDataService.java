@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.quantfolio.backend.config.QuantfolioProperties;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -72,6 +73,15 @@ public class MarketDataService {
         String json;
         try {
             json = restTemplate.getForObject(url, String.class);
+        } catch (HttpStatusCodeException ex) {
+            // Yahoo's chart endpoint responds with an HTTP error status (not a 200 + JSON error
+            // body) for a ticker it doesn't recognize — surface that as "unknown ticker", not a
+            // generic connectivity failure, so a typo doesn't read as an infrastructure problem.
+            if (ex.getStatusCode().is4xxClientError()) {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Unknown ticker: " + ticker, ex);
+            }
+            throw new ResponseStatusException(HttpStatus.BAD_GATEWAY,
+                    "Could not reach market data provider for " + ticker, ex);
         } catch (Exception ex) {
             throw new ResponseStatusException(HttpStatus.BAD_GATEWAY,
                     "Could not reach market data provider for " + ticker, ex);
